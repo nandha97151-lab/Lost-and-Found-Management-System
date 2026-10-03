@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Found Item - Lost & Found Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/search}">Search Items</a></li>
+                <li><a th:href="@{/dashboard}">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="form-card">
+            <div class="form-header">
+                <i class="fa-solid fa-hand-holding-hand" style="font-size: 2.5rem; color: #0ea5e9; margin-bottom: 0.5rem;"></i>
+                <h2 style="font-size: 1.6rem; font-weight: 700;">Report Found Item</h2>
+                <p style="color: var(--slate); font-size: 0.9rem;">Register an item you found on campus to help locate its owner</p>
+            </div>
+
+            <form th:action="@{/report-found}" th:object="${foundItem}" method="post" enctype="multipart/form-data">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Item Name *</label>
+                        <input type="text" th:field="*{itemName}" class="form-control" placeholder="e.g. Sony Wireless Headphones" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select th:field="*{category}" class="form-control" required>
+                            <option value="">Select Category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Personal Items">Personal Items (Wallet, Bag, Watch)</option>
+                            <option value="Books & Notes">Books & Notes</option>
+                            <option value="Keys">Keys</option>
+                            <option value="ID Cards & Documents">ID Cards & Documents</option>
+                            <option value="Clothing & Accessories">Clothing & Accessories</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Item Description *</label>
+                    <textarea th:field="*{description}" class="form-control" rows="3" placeholder="Provide general description..." required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Location Found *</label>
+                        <input type="text" th:field="*{location}" class="form-control" placeholder="e.g. Main Auditorium Row F" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Item Color</label>
+                        <input type="text" th:field="*{color}" class="form-control" placeholder="e.g. Black / Silver">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Date Found *</label>
+                        <input type="date" th:field="*{dateFound}" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Approximate Time Found</label>
+                        <input type="text" th:field="*{timeFound}" class="form-control" placeholder="e.g. 11:45 AM">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Identifying Features</label>
+                    <textarea th:field="*{identifyingFeatures}" class="form-control" rows="2" placeholder="e.g. Red carabiner clip on zipper case"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Found-By / Storage Details</label>
+                    <input type="text" th:field="*{foundByDetails}" class="form-control" placeholder="e.g. Handed over to Security Desk at Main Gate">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Item Image Upload</label>
+                    <input type="file" name="imageFile" class="form-control" accept="image/*">
+                    <small style="color: var(--slate); font-size: 0.8rem;">Upload clear photo of the found item</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem; background: #0ea5e9;">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Found Item Report
+                </button>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>

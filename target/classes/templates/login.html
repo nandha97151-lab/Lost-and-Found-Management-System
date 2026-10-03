@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Lost & Found Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/search}">Search Items</a></li>
+                <li><a th:href="@{/register}">Register</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="form-card" style="max-width: 450px;">
+            <div class="form-header">
+                <i class="fa-solid fa-right-to-bracket" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
+                <h2 style="font-size: 1.6rem; font-weight: 700;">Welcome Back</h2>
+                <p style="color: var(--slate); font-size: 0.9rem;">Sign in to manage lost and found items</p>
+            </div>
+
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-control" placeholder="student@campus.edu" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                    Sign In
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--slate);">
+                Don't have an account? <a th:href="@{/register}" style="color: var(--primary); font-weight: 600;">Register here</a>
+            </div>
+            
+            <div style="margin-top: 1.5rem; padding: 0.8rem; background: #f1f5f9; border-radius: 8px; font-size: 0.8rem; color: var(--slate);">
+                <strong>Demo Credentials:</strong><br>
+                Admin: <code>admin@campus.edu</code> / <code>admin123</code><br>
+                User: <code>alex@campus.edu</code> / <code>password123</code>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

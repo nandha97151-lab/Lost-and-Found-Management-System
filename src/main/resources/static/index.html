@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found Management System - Campus Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --slate: #475569;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--light-bg); color: var(--dark); min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Navigation */
+        .navbar { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+        .nav-container { max-width: 1250px; margin: 0 auto; padding: 0.9rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .brand { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 700; color: var(--primary); cursor: pointer; text-decoration: none; }
+        
+        .portal-switcher { display: flex; background: #e2e8f0; padding: 4px; border-radius: 30px; gap: 4px; margin-left: 1.5rem; }
+        .switch-btn { border: none; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; color: var(--slate); background: transparent; }
+        .switch-btn.active-student { background: var(--primary); color: #fff; box-shadow: var(--shadow-sm); }
+        .switch-btn.active-admin { background: var(--danger); color: #fff; box-shadow: var(--shadow-sm); }
+
+        .nav-links { display: flex; align-items: center; gap: 0.8rem; list-style: none; }
+        .nav-links a { text-decoration: none; font-weight: 500; font-size: 0.9rem; color: var(--slate); padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); background: #eef2ff; }
+
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.6rem 1.25rem; font-size: 0.9rem; font-weight: 600; border-radius: var(--radius-md); border: none; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
+
+        .main-container { max-width: 1250px; width: 100%; margin: 2rem auto; padding: 0 1.5rem; flex: 1; }
+
+        /* Banner */
+        .portal-banner { border-radius: var(--radius-lg); padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; font-weight: 600; }
+        .banner-student { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+        .banner-admin { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        /* Hero */
+        .hero-section { background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: #fff; border-radius: var(--radius-lg); padding: 3rem 2rem; text-align: center; margin-bottom: 2rem; box-shadow: var(--shadow-md); }
+        .hero-title { font-size: 2.4rem; font-weight: 800; margin-bottom: 0.8rem; }
+        .hero-subtitle { font-size: 1.05rem; max-width: 600px; margin: 0 auto 1.8rem; opacity: 0.95; }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem; }
+        .stat-card { background: var(--card-bg); border-radius: var(--radius-md); padding: 1.25rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 1rem; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        .stat-icon.lost { background: #fee2e2; color: #ef4444; }
+        .stat-icon.found { background: #e0f2fe; color: #0284c7; }
+        .stat-icon.returned { background: #d1fae5; color: #10b981; }
+        .stat-icon.claims { background: #fef3c7; color: #d97706; }
+        .stat-num { font-size: 1.6rem; font-weight: 700; }
+        .stat-label { font-size: 0.85rem; color: var(--slate); }
+
+        /* Item Grid */
+        .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.2rem; }
+        .item-card { background: var(--card-bg); border-radius: var(--radius-md); border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+        .item-img { height: 180px; width: 100%; object-fit: cover; background: #f1f5f9; }
+        .item-body { padding: 1.25rem; display: flex; flex-direction: column; flex: 1; }
+        .item-badge { display: inline-block; padding: 0.25rem 0.65rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; width: fit-content; margin-bottom: 0.5rem; }
+        .badge-lost { background: #fee2e2; color: #b91c1c; }
+        .badge-found { background: #e0f2fe; color: #0369a1; }
+        .badge-claimed { background: #fef3c7; color: #b45309; }
+        .badge-open { background: #dcfce7; color: #15803d; }
+        .item-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .item-meta { font-size: 0.85rem; color: var(--slate); margin-bottom: 1rem; }
+
+        /* Views */
+        .portal-view { display: none; }
+        .portal-view.active { display: block; }
+
+        .form-card { background: var(--card-bg); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 2rem; max-width: 650px; margin: 0 auto; box-shadow: var(--shadow-md); }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.9rem; }
+        .form-control { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.95rem; }
+
+        /* Table */
+        .custom-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        .custom-table th { background: #f8fafc; padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border); color: var(--slate); font-weight: 600; }
+        .custom-table td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+    <!-- Main Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div style="display:flex; align-items:center;">
+                <a onclick="showSection('student-home')" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System</a>
+                
+                <!-- PORTAL SWITCHER BUTTONS -->
+                <div class="portal-switcher">
+                    <button id="btn-portal-student" onclick="switchPortal('student')" class="switch-btn active-student"><i class="fa-solid fa-graduation-cap"></i> Student Portal</button>
+                    <button id="btn-portal-admin" onclick="switchPortal('admin')" class="switch-btn"><i class="fa-solid fa-user-shield"></i> Admin Portal</button>
+                </div>
+            </div>
+
+            <!-- Dynamic Nav Links -->
+            <ul id="nav-student-links" class="nav-links">
+                <li><a onclick="showSection('student-home')" class="active"><i class="fa-solid fa-house"></i> Home</a></li>
+                <li><a onclick="showSection('student-search')"><i class="fa-solid fa-magnifying-glass"></i> Search Items</a></li>
+                <li><a onclick="showSection('report-lost')"><i class="fa-solid fa-plus-circle"></i> Report Lost</a></li>
+                <li><a onclick="showSection('report-found')"><i class="fa-solid fa-hand-holding-hand"></i> Report Found</a></li>
+                <li><a onclick="showSection('student-dashboard')"><i class="fa-solid fa-user"></i> My Dashboard</a></li>
+            </ul>
+
+            <ul id="nav-admin-links" class="nav-links" style="display:none;">
+                <li><a onclick="showSection('admin-overview')" class="active"><i class="fa-solid fa-chart-line"></i> Overview</a></li>
+                <li><a onclick="showSection('admin-claims')"><i class="fa-solid fa-clipboard-check"></i> Manage Claims</a></li>
+                <li><a onclick="showSection('admin-items')"><i class="fa-solid fa-boxes-stacked"></i> All Reports</a></li>
+                <li><a onclick="showSection('admin-users')"><i class="fa-solid fa-users"></i> Users</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+
+        <!-- Banner Indicator -->
+        <div id="banner-indicator" class="portal-banner banner-student">
+            <span><i class="fa-solid fa-graduation-cap"></i> Currently Viewing: <strong>STUDENT & STAFF PORTAL</strong></span>
+            <button onclick="switchPortal('admin')" class="btn btn-danger btn-sm"><i class="fa-solid fa-user-shield"></i> Switch to Admin Portal</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!--           1. STUDENT PORTAL VIEWS          -->
+        <!-- ========================================== -->
+
+        <!-- Student Home -->
+        <div id="sec-student-home" class="portal-view active">
+            <section class="hero-section">
+                <h1 class="hero-title">Campus Lost & Found Portal</h1>
+                <p class="hero-subtitle">Search missing belongings, submit found property reports, or submit an ownership claim.</p>
+                <div style="display:flex; justify-content:center; gap:1rem; flex-wrap:wrap;">
+                    <button onclick="showSection('report-lost')" class="btn btn-primary" style="background:#fff; color:#4f46e5;"><i class="fa-solid fa-plus-circle"></i> Report Lost Item</button>
+                    <button onclick="showSection('report-found')" class="btn btn-primary" style="background:#0ea5e9;"><i class="fa-solid fa-hand-holding-hand"></i> Report Found Item</button>
+                    <button onclick="showSection('student-search')" class="btn btn-outline" style="border-color:#fff; color:#fff;"><i class="fa-solid fa-magnifying-glass"></i> Search Items</button>
+                </div>
+            </section>
+
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon lost"><i class="fa-solid fa-circle-question"></i></div><div><div class="stat-num" id="stat-lost">2</div><div class="stat-label">Total Lost Items</div></div></div>
+                <div class="stat-card"><div class="stat-icon found"><i class="fa-solid fa-box"></i></div><div><div class="stat-num" id="stat-found">2</div><div class="stat-label">Total Found Items</div></div></div>
+                <div class="stat-card"><div class="stat-icon returned"><i class="fa-solid fa-circle-check"></i></div><div><div class="stat-num">1</div><div class="stat-label">Items Returned</div></div></div>
+                <div class="stat-card"><div class="stat-icon claims"><i class="fa-solid fa-file-signature"></i></div><div><div class="stat-num">1</div><div class="stat-label">Pending Claims</div></div></div>
+            </div>
+
+            <h2 style="font-size:1.4rem; font-weight:700; margin-bottom:1rem;">Recently Reported Items</h2>
+            <div class="items-grid" id="student-recent-grid">
+                <!-- Dynamic Items Inserted via JS -->
+            </div>
+        </div>
+
+        <!-- Student Search -->
+        <div id="sec-student-search" class="portal-view">
+            <h2 style="margin-bottom:1.2rem;"><i class="fa-solid fa-magnifying-glass"></i> Search & Browse Directory</h2>
+            <div style="background:#fff; padding:1.2rem; border-radius:10px; border:1px solid var(--border); margin-bottom:1.5rem; display:flex; gap:1rem;">
+                <input type="text" id="search-input" class="form-control" placeholder="Search by item name, category, or location..." onkeyup="renderSearchItems()">
+                <button onclick="renderSearchItems()" class="btn btn-primary"><i class="fa-solid fa-filter"></i> Search</button>
+            </div>
+            <div class="items-grid" id="search-grid"></div>
+        </div>
+
+        <!-- Report Lost Form -->
+        <div id="sec-report-lost" class="portal-view">
+            <div class="form-card">
+                <h2 style="margin-bottom:1.5rem; text-align:center;"><i class="fa-solid fa-file-circle-question" style="color:#ef4444;"></i> Report Lost Item</h2>
+                <form onsubmit="handleReportLost(event)">
+                    <div class="form-group"><label class="form-label">Item Name *</label><input type="text" id="lost-name" class="form-control" placeholder="e.g. Dell XPS Laptop" required></div>
+                    <div class="form-group"><label class="form-label">Category *</label><select id="lost-cat" class="form-control"><option>Electronics</option><option>Personal Items</option><option>Keys</option><option>Books & Notes</option></select></div>
+                    <div class="form-group"><label class="form-label">Location Lost *</label><input type="text" id="lost-loc" class="form-control" placeholder="e.g. Science Lab 3" required></div>
+                    <div class="form-group"><label class="form-label">Description *</label><textarea id="lost-desc" class="form-control" rows="3" required></textarea></div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; background:#ef4444;">Submit Lost Report</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Report Found Form -->
+        <div id="sec-report-found" class="portal-view">
+            <div class="form-card">
+                <h2 style="margin-bottom:1.5rem; text-align:center;"><i class="fa-solid fa-hand-holding-hand" style="color:#0ea5e9;"></i> Report Found Item</h2>
+                <form onsubmit="handleReportFound(event)">
+                    <div class="form-group"><label class="form-label">Item Name *</label><input type="text" id="found-name" class="form-control" placeholder="e.g. Wireless Mouse" required></div>
+                    <div class="form-group"><label class="form-label">Category *</label><select id="found-cat" class="form-control"><option>Electronics</option><option>Keys</option><option>Personal Items</option></select></div>
+                    <div class="form-group"><label class="form-label">Location Found *</label><input type="text" id="found-loc" class="form-control" placeholder="e.g. Cafeteria" required></div>
+                    <div class="form-group"><label class="form-label">Found-By / Storage Details *</label><input type="text" id="found-storage" class="form-control" placeholder="e.g. Left at Security Guard Desk" required></div>
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; background:#0ea5e9;">Submit Found Report</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Claim Ownership Form -->
+        <div id="sec-claim-form" class="portal-view">
+            <div class="form-card">
+                <h2 style="margin-bottom:1.5rem; text-align:center;"><i class="fa-solid fa-file-signature" style="color:var(--success);"></i> Submit Ownership Claim</h2>
+                <form onsubmit="handleClaimSubmit(event)">
+                    <div class="form-group"><label class="form-label">Target Found Item</label><input type="text" id="claim-item-name" class="form-control" readonly style="background:#f1f5f9;"></div>
+                    <div class="form-group"><label class="form-label">Claimant Full Name</label><input type="text" id="claimant-name" class="form-control" value="Alex Johnson" required></div>
+                    <div class="form-group"><label class="form-label">Proof of Ownership Description *</label><textarea id="claim-proof" class="form-control" rows="4" placeholder="Describe specific scratches, contents inside, wallpaper, or purchase info to verify ownership..." required></textarea></div>
+                    <button type="submit" class="btn btn-success" style="width:100%; justify-content:center;">Submit Verification Claim</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="sec-student-dashboard" class="portal-view">
+            <h2 style="margin-bottom:1.5rem;"><i class="fa-solid fa-user-graduate"></i> Student Dashboard (My Submissions)</h2>
+            <div style="background:#fff; padding:1.5rem; border-radius:10px; border:1px solid var(--border);">
+                <h3 style="margin-bottom:1rem;">My Reports & Submitted Claims</h3>
+                <table class="custom-table">
+                    <thead><tr><th>Code</th><th>Type</th><th>Item Name</th><th>Date</th><th>Status</th></tr></thead>
+                    <tbody id="student-dashboard-table">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <!-- ========================================== -->
+        <!--            2. ADMIN PORTAL VIEWS           -->
+        <!-- ========================================== -->
+
+        <!-- Admin Overview -->
+        <div id="sec-admin-overview" class="portal-view">
+            <h2 style="margin-bottom:1.2rem; color:var(--danger);"><i class="fa-solid fa-user-shield"></i> System Administration Overview</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon lost"><i class="fa-solid fa-users"></i></div><div><div class="stat-num">3</div><div class="stat-label">Registered Users</div></div></div>
+                <div class="stat-card"><div class="stat-icon lost"><i class="fa-solid fa-circle-question"></i></div><div><div class="stat-num" id="admin-stat-lost">2</div><div class="stat-label">Total Lost Reports</div></div></div>
+                <div class="stat-card"><div class="stat-icon found"><i class="fa-solid fa-box"></i></div><div><div class="stat-num" id="admin-stat-found">2</div><div class="stat-label">Total Found Reports</div></div></div>
+                <div class="stat-card"><div class="stat-icon claims"><i class="fa-solid fa-clock-rotate-left"></i></div><div><div class="stat-num" id="admin-stat-claims">1</div><div class="stat-label">Pending Claims</div></div></div>
+            </div>
+
+            <div style="background:#fff; padding:1.5rem; border-radius:10px; border:1px solid var(--border);">
+                <h3 style="margin-bottom:1rem;"><i class="fa-solid fa-clipboard-check" style="color:var(--primary);"></i> Action Needed: Pending Claims</h3>
+                <table class="custom-table">
+                    <thead><tr><th>Claim ID</th><th>Item</th><th>Claimant</th><th>Proof Details</th><th>Action</th></tr></thead>
+                    <tbody id="admin-pending-claims-table">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Admin Claims Management -->
+        <div id="sec-admin-claims" class="portal-view">
+            <h2 style="margin-bottom:1.2rem;"><i class="fa-solid fa-clipboard-check"></i> Ownership Claims Approval Portal</h2>
+            <table class="custom-table">
+                <thead><tr><th>Claim ID</th><th>Item Name</th><th>Claimant</th><th>Proof Description</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="admin-all-claims-table"></tbody>
+            </table>
+        </div>
+
+        <!-- Admin All Reports -->
+        <div id="sec-admin-items" class="portal-view">
+            <h2 style="margin-bottom:1.2rem;"><i class="fa-solid fa-boxes-stacked"></i> All Reported Items Management</h2>
+            <table class="custom-table">
+                <thead><tr><th>Code</th><th>Type</th><th>Item Name</th><th>Category</th><th>Location</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="admin-items-table"></tbody>
+            </table>
+        </div>
+
+        <!-- Admin Users Management -->
+        <div id="sec-admin-users" class="portal-view">
+            <h2 style="margin-bottom:1.2rem;"><i class="fa-solid fa-users"></i> Registered Users Directory</h2>
+            <table class="custom-table">
+                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Action</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>System Administrator</td><td>admin@campus.edu</td><td>9876543210</td><td><span class="item-badge badge-found">ADMIN</span></td><td>System</td></tr>
+                    <tr><td>2</td><td>Alex Johnson</td><td>alex@campus.edu</td><td>9876543211</td><td><span class="item-badge badge-open">USER</span></td><td><button onclick="alert('User removed.')" class="btn btn-danger btn-sm">Remove</button></td></tr>
+                    <tr><td>3</td><td>Sophia Chen</td><td>sophia@campus.edu</td><td>9876543212</td><td><span class="item-badge badge-open">USER</span></td><td><button onclick="alert('User removed.')" class="btn btn-danger btn-sm">Remove</button></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script>
+        // Sample Data State
+        let items = [
+            { id: 1, code: 'LOST-1001', type: 'LOST', name: 'MacBook Pro 14"', category: 'Electronics', location: 'Central Library 2nd Floor', status: 'OPEN', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&auto=format&fit=crop&q=60' },
+            { id: 2, code: 'LOST-1002', type: 'LOST', name: 'Leather Wallet', category: 'Personal Items', location: 'Student Union Cafeteria', status: 'OPEN', image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&auto=format&fit=crop&q=60' },
+            { id: 3, code: 'FND-2001', type: 'FOUND', name: 'Sony Wireless Headphones', category: 'Electronics', location: 'Main Auditorium Row F', status: 'OPEN', image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=500&auto=format&fit=crop&q=60' },
+            { id: 4, code: 'FND-2002', type: 'FOUND', name: 'Car & Dorm Key Set', category: 'Keys', location: 'Gymnasium Locker Room', status: 'OPEN', image: 'https://images.unsplash.com/photo-1582142839970-2b93284439bb?w=500&auto=format&fit=crop&q=60' }
+        ];
+
+        let claims = [
+            { id: 1, code: 'CLM-3001', itemId: 3, itemName: 'Sony Wireless Headphones', claimant: 'Alex Johnson', proof: 'Red carabiner clip attached to black zipper case. Serial ends in 8849.', status: 'PENDING' }
+        ];
+
+        let activePortal = 'student';
+        let claimingItemId = null;
+
+        // Portal Switcher Function
+        function switchPortal(portal) {
+            activePortal = portal;
+            const banner = document.getElementById('banner-indicator');
+            const btnStudent = document.getElementById('btn-portal-student');
+            const btnAdmin = document.getElementById('btn-portal-admin');
+            const studentLinks = document.getElementById('nav-student-links');
+            const adminLinks = document.getElementById('nav-admin-links');
+
+            if (portal === 'student') {
+                banner.className = 'portal-banner banner-student';
+                banner.innerHTML = `<span><i class="fa-solid fa-graduation-cap"></i> Currently Viewing: <strong>STUDENT & STAFF PORTAL</strong></span>
+                                    <button onclick="switchPortal('admin')" class="btn btn-danger btn-sm"><i class="fa-solid fa-user-shield"></i> Switch to Admin Portal</button>`;
+                btnStudent.className = 'switch-btn active-student';
+                btnAdmin.className = 'switch-btn';
+                studentLinks.style.display = 'flex';
+                adminLinks.style.display = 'none';
+                showSection('student-home');
+            } else {
+                banner.className = 'portal-banner banner-admin';
+                banner.innerHTML = `<span><i class="fa-solid fa-user-shield"></i> Currently Viewing: <strong>ADMINISTRATOR CONTROL PANEL</strong></span>
+                                    <button onclick="switchPortal('student')" class="btn btn-primary btn-sm"><i class="fa-solid fa-graduation-cap"></i> Switch to Student Portal</button>`;
+                btnAdmin.className = 'switch-btn active-admin';
+                btnStudent.className = 'switch-btn';
+                adminLinks.style.display = 'flex';
+                studentLinks.style.display = 'none';
+                showSection('admin-overview');
+            }
+        }
+
+        // Section Router
+        function showSection(secId) {
+            document.querySelectorAll('.portal-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-links a').forEach(el => el.classList.remove('active'));
+            
+            const target = document.getElementById('sec-' + secId);
+            if (target) target.classList.add('active');
+
+            // Refresh dynamic views
+            renderStudentHome();
+            renderSearchItems();
+            renderStudentDashboard();
+            renderAdminOverview();
+            renderAdminClaims();
+            renderAdminItems();
+            window.scrollTo(0, 0);
+        }
+
+        // Render Student Home
+        function renderStudentHome() {
+            const grid = document.getElementById('student-recent-grid');
+            grid.innerHTML = items.map(item => `
+                <div class="item-card">
+                    <img src="${item.image}" class="item-img">
+                    <div class="item-body">
+                        <span class="item-badge ${item.type==='LOST'?'badge-lost':'badge-found'}">${item.type}</span>
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-meta"><i class="fa-solid fa-location-dot"></i> ${item.location}</div>
+                        ${item.type==='FOUND' && item.status==='OPEN' ? 
+                            `<button onclick="openClaimForm(${item.id}, '${item.name}')" class="btn btn-success" style="width:100%; justify-content:center;">Claim Item</button>` : 
+                            `<button onclick="alert('Item Code: ${item.code}\\nLocation: ${item.location}\\nStatus: ${item.status}')" class="btn btn-outline" style="width:100%; justify-content:center;">View Details</button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('stat-lost').innerText = items.filter(i => i.type === 'LOST').length;
+            document.getElementById('stat-found').innerText = items.filter(i => i.type === 'FOUND').length;
+        }
+
+        // Render Search Items
+        function renderSearchItems() {
+            const query = (document.getElementById('search-input')?.value || '').toLowerCase();
+            const grid = document.getElementById('search-grid');
+            const filtered = items.filter(i => i.name.toLowerCase().includes(query) || i.category.toLowerCase().includes(query) || i.location.toLowerCase().includes(query));
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="item-card">
+                    <img src="${item.image}" class="item-img">
+                    <div class="item-body">
+                        <span class="item-badge ${item.type==='LOST'?'badge-lost':'badge-found'}">${item.type}</span>
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-meta"><i class="fa-solid fa-folder"></i> ${item.category} | <i class="fa-solid fa-location-dot"></i> ${item.location}</div>
+                        ${item.type==='FOUND' && item.status==='OPEN' ? 
+                            `<button onclick="openClaimForm(${item.id}, '${item.name}')" class="btn btn-success" style="width:100%; justify-content:center;">Claim Item</button>` : 
+                            `<button onclick="alert('Item: ${item.name}\\nStatus: ${item.status}')" class="btn btn-outline" style="width:100%; justify-content:center;">View Details</button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Handle Reports
+        function handleReportLost(e) {
+            e.preventDefault();
+            const nameEl = document.getElementById('lost-name');
+            const catEl = document.getElementById('lost-cat');
+            const locEl = document.getElementById('lost-loc');
+            const descEl = document.getElementById('lost-desc');
+
+            const newItem = {
+                id: Date.now(),
+                code: 'LOST-' + Math.floor(1000 + Math.random() * 9000),
+                type: 'LOST',
+                name: nameEl.value,
+                category: catEl.value,
+                location: locEl.value,
+                description: descEl ? descEl.value : 'No description',
+                status: 'OPEN',
+                image: 'https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=500&auto=format&fit=crop&q=60'
+            };
+
+            items.unshift(newItem);
+            
+            // Reset form fields
+            if (nameEl) nameEl.value = '';
+            if (locEl) locEl.value = '';
+            if (descEl) descEl.value = '';
+
+            // Update UI components
+            renderStudentHome();
+            renderAdminOverview();
+            renderAdminItems();
+
+            alert('✅ Lost Report Successfully Submitted!\n\nItem: ' + newItem.name + '\nTracking Code: ' + newItem.code + '\n\nSwitching to Admin Portal to view your report...');
+            
+            // Automatically switch to Admin Portal to show the user the result!
+            switchPortal('admin');
+            showSection('admin-items');
+        }
+
+        function handleReportFound(e) {
+            e.preventDefault();
+            const nameEl = document.getElementById('found-name');
+            const catEl = document.getElementById('found-cat');
+            const locEl = document.getElementById('found-loc');
+
+            const newItem = {
+                id: Date.now(),
+                code: 'FND-' + Math.floor(2000 + Math.random() * 9000),
+                type: 'FOUND',
+                name: nameEl.value,
+                category: catEl.value,
+                location: locEl.value,
+                status: 'OPEN',
+                image: 'https://images.unsplash.com/photo-1582142839970-2b93284439bb?w=500&auto=format&fit=crop&q=60'
+            };
+
+            items.unshift(newItem);
+
+            // Reset form fields
+            if (nameEl) nameEl.value = '';
+            if (locEl) locEl.value = '';
+
+            // Update UI components
+            renderStudentHome();
+            renderAdminOverview();
+            renderAdminItems();
+
+            alert('✅ Found Item Successfully Reported!\n\nItem: ' + newItem.name + '\nTracking Code: ' + newItem.code + '\n\nSwitching to Admin Portal to view your report...');
+            
+            // Automatically switch to Admin Portal to show the user the result!
+            switchPortal('admin');
+            showSection('admin-items');
+        }
+
+
+
+        // Claims Workflow
+        function openClaimForm(id, name) {
+            claimingItemId = id;
+            document.getElementById('claim-item-name').value = name;
+            showSection('claim-form');
+        }
+
+        function handleClaimSubmit(e) {
+            e.preventDefault();
+            const newClaim = {
+                id: claims.length + 1,
+                code: 'CLM-' + (3000 + claims.length + 1),
+                itemId: claimingItemId,
+                itemName: document.getElementById('claim-item-name').value,
+                claimant: document.getElementById('claimant-name').value,
+                proof: document.getElementById('claim-proof').value,
+                status: 'PENDING'
+            };
+            claims.push(newClaim);
+            
+            // update item status
+            const foundItem = items.find(i => i.id === claimingItemId);
+            if (foundItem) foundItem.status = 'CLAIM_PENDING';
+
+            alert('Ownership Claim Submitted! Tracking Code: ' + newClaim.code);
+            showSection('student-dashboard');
+        }
+
+        function renderStudentDashboard() {
+            const table = document.getElementById('student-dashboard-table');
+            table.innerHTML = `
+                <tr><td>LOST-1001</td><td><span class="item-badge badge-lost">LOST</span></td><td>MacBook Pro</td><td>2026-09-28</td><td><span class="item-badge badge-open">OPEN</span></td></tr>
+                ${claims.map(c => `<tr><td>${c.code}</td><td><span class="item-badge badge-found">CLAIM</span></td><td>${c.itemName}</td><td>2026-10-03</td><td><span class="item-badge ${c.status==='PENDING'?'badge-claimed':'badge-open'}">${c.status}</span></td></tr>`).join('')}
+            `;
+        }
+
+        // Admin Views
+        function renderAdminOverview() {
+            document.getElementById('admin-stat-lost').innerText = items.filter(i => i.type === 'LOST').length;
+            document.getElementById('admin-stat-found').innerText = items.filter(i => i.type === 'FOUND').length;
+            document.getElementById('admin-stat-claims').innerText = claims.filter(c => c.status === 'PENDING').length;
+
+            const table = document.getElementById('admin-pending-claims-table');
+            const pending = claims.filter(c => c.status === 'PENDING');
+            table.innerHTML = pending.length === 0 ? `<tr><td colspan="5" style="text-align:center;">No pending claims requiring approval.</td></tr>` : 
+                pending.map(c => `
+                <tr>
+                    <td><strong>${c.code}</strong></td>
+                    <td>${c.itemName}</td>
+                    <td>${c.claimant}</td>
+                    <td>${c.proof}</td>
+                    <td>
+                        <button onclick="approveClaim(${c.id})" class="btn btn-success btn-sm"><i class="fa-solid fa-check"></i> Approve</button>
+                        <button onclick="rejectClaim(${c.id})" class="btn btn-danger btn-sm"><i class="fa-solid fa-xmark"></i> Reject</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAdminClaims() {
+            const table = document.getElementById('admin-all-claims-table');
+            table.innerHTML = claims.map(c => `
+                <tr>
+                    <td><strong>${c.code}</strong></td>
+                    <td>${c.itemName}</td>
+                    <td>${c.claimant}</td>
+                    <td>${c.proof}</td>
+                    <td><span class="item-badge ${c.status==='PENDING'?'badge-claimed':'badge-open'}">${c.status}</span></td>
+                    <td>
+                        ${c.status === 'PENDING' ? `
+                            <button onclick="approveClaim(${c.id})" class="btn btn-success btn-sm">Approve</button>
+                            <button onclick="rejectClaim(${c.id})" class="btn btn-danger btn-sm">Reject</button>
+                        ` : '<span>Completed</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function approveClaim(claimId) {
+            const c = claims.find(cl => cl.id === claimId);
+            if (c) {
+                c.status = 'APPROVED';
+                const foundItem = items.find(i => i.id === c.itemId);
+                if (foundItem) foundItem.status = 'CLAIMED';
+                alert('Claim Approved! Item marked as CLAIMED.');
+                renderAdminOverview();
+                renderAdminClaims();
+            }
+        }
+
+        function rejectClaim(claimId) {
+            const c = claims.find(cl => cl.id === claimId);
+            if (c) {
+                c.status = 'REJECTED';
+                const foundItem = items.find(i => i.id === c.itemId);
+                if (foundItem) foundItem.status = 'OPEN';
+                alert('Claim Rejected.');
+                renderAdminOverview();
+                renderAdminClaims();
+            }
+        }
+
+        function renderAdminItems() {
+            const table = document.getElementById('admin-items-table');
+            table.innerHTML = items.map(i => `
+                <tr>
+                    <td><strong>${i.code}</strong></td>
+                    <td><span class="item-badge ${i.type==='LOST'?'badge-lost':'badge-found'}">${i.type}</span></td>
+                    <td>${i.name}</td>
+                    <td>${i.category}</td>
+                    <td>${i.location}</td>
+                    <td><span class="item-badge badge-open">${i.status}</span></td>
+                    <td><button onclick="deleteItem(${i.id})" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Remove</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteItem(id) {
+            items = items.filter(i => i.id !== id);
+            renderAdminItems();
+        }
+
+        // Init
+        renderStudentHome();
+    </script>
+</body>
+</html>

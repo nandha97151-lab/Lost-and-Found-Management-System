@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Lost & Found Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/search}">Search Items</a></li>
+                <li><a th:href="@{/login}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="form-card" style="max-width: 500px;">
+            <div class="form-header">
+                <i class="fa-solid fa-user-plus" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem;"></i>
+                <h2 style="font-size: 1.6rem; font-weight: 700;">Create Account</h2>
+                <p style="color: var(--slate); font-size: 0.9rem;">Register as Student or Staff</p>
+            </div>
+
+            <form th:action="@{/register}" th:object="${user}" method="post">
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="John Doe" required>
+                    <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:var(--danger); font-size:0.8rem; margin-top:0.2rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Campus Email</label>
+                    <input type="email" th:field="*{email}" class="form-control" placeholder="john.doe@campus.edu" required>
+                    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:var(--danger); font-size:0.8rem; margin-top:0.2rem;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" th:field="*{phone}" class="form-control" placeholder="9876543210" required>
+                    <div th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" style="color:var(--danger); font-size:0.8rem; margin-top:0.2rem;"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" th:field="*{password}" class="form-control" placeholder="••••••••" required>
+                        <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color:var(--danger); font-size:0.8rem; margin-top:0.2rem;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" name="confirmPassword" class="form-control" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                    Create Account
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--slate);">
+                Already have an account? <a th:href="@{/login}" style="color: var(--primary); font-weight: 600;">Sign in here</a>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

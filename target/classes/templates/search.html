@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search & Browse Items - Lost & Found Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/search}" class="active">Search Items</a></li>
+                <li sec:authorize="isAuthenticated()"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li sec:authorize="isAnonymous()"><a th:href="@{/login}">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--dark);">
+                <i class="fa-solid fa-magnifying-glass"></i> Search & Filter Items
+            </h1>
+            <p style="color: var(--slate);">Search through all reported lost and found items across the campus.</p>
+        </div>
+
+        <!-- Search Bar & Filters Form -->
+        <div style="background: #fff; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+            <form th:action="@{/search}" method="get">
+                <div class="form-row" style="grid-template-columns: 2fr 1fr 1fr 1fr;">
+                    
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Search Keyword</label>
+                        <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="Item name, description, tags...">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-control">
+                            <option value="">All Categories</option>
+                            <option value="Electronics" th:selected="${category == 'Electronics'}">Electronics</option>
+                            <option value="Personal Items" th:selected="${category == 'Personal Items'}">Personal Items</option>
+                            <option value="Books & Notes" th:selected="${category == 'Books & Notes'}">Books & Notes</option>
+                            <option value="Keys" th:selected="${category == 'Keys'}">Keys</option>
+                            <option value="ID Cards & Documents" th:selected="${category == 'ID Cards & Documents'}">ID Cards & Documents</option>
+                            <option value="Clothing & Accessories" th:selected="${category == 'Clothing & Accessories'}">Clothing & Accessories</option>
+                            <option value="Other" th:selected="${category == 'Other'}">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label">Status Type</label>
+                        <select name="type" class="form-control">
+                            <option value="ALL" th:selected="${type == 'ALL'}">All Items</option>
+                            <option value="LOST" th:selected="${type == 'LOST'}">Lost Items Only</option>
+                            <option value="FOUND" th:selected="${type == 'FOUND'}">Found Items Only</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0; display:flex; align-items:flex-end;">
+                        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; height:42px;">
+                            <i class="fa-solid fa-filter"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Grid -->
+        <div class="items-grid">
+            
+            <!-- Lost Items Results -->
+            <div th:each="item : ${lostItems}" class="item-card">
+                <img th:src="${item.image != null ? item.image : 'https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=500&auto=format&fit=crop&q=60'}" 
+                     class="item-image" alt="Lost Item Image">
+                <div class="item-body">
+                    <span class="item-badge badge-lost">LOST</span>
+                    <h3 class="item-title" th:text="${item.itemName}">Item Name</h3>
+                    <div class="item-meta">
+                        <span><i class="fa-solid fa-folder"></i> <span th:text="${item.category}">Category</span></span>
+                        <span><i class="fa-solid fa-location-dot"></i> <span th:text="${item.location}">Location</span></span>
+                        <span><i class="fa-solid fa-calendar"></i> <span th:text="${item.dateLost}">Date</span></span>
+                        <span><i class="fa-solid fa-info-circle"></i> Status: <strong th:text="${item.status}">OPEN</strong></span>
+                    </div>
+                    <a th:href="@{'/item/lost/' + ${item.id}}" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: auto;">
+                        View Details
+                    </a>
+                </div>
+            </div>
+
+            <!-- Found Items Results -->
+            <div th:each="item : ${foundItems}" class="item-card">
+                <img th:src="${item.image != null ? item.image : 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=500&auto=format&fit=crop&q=60'}" 
+                     class="item-image" alt="Found Item Image">
+                <div class="item-body">
+                    <span class="item-badge badge-found">FOUND</span>
+                    <h3 class="item-title" th:text="${item.itemName}">Item Name</h3>
+                    <div class="item-meta">
+                        <span><i class="fa-solid fa-folder"></i> <span th:text="${item.category}">Category</span></span>
+                        <span><i class="fa-solid fa-location-dot"></i> <span th:text="${item.location}">Location</span></span>
+                        <span><i class="fa-solid fa-calendar"></i> <span th:text="${item.dateFound}">Date</span></span>
+                        <span><i class="fa-solid fa-info-circle"></i> Status: <strong th:text="${item.status}">OPEN</strong></span>
+                    </div>
+                    <a th:href="@{'/item/found/' + ${item.id}}" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: auto;">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(lostItems) and #lists.isEmpty(foundItems)}" 
+                 style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #fff; border-radius: 12px; border: 1px dashed var(--border);">
+                <i class="fa-solid fa-box-open" style="font-size: 3rem; color: var(--slate); margin-bottom: 1rem;"></i>
+                <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--dark);">No Matching Items Found</h3>
+                <p style="color: var(--slate); margin-top: 0.5rem;">Try adjusting your keyword or clearing category filters.</p>
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>

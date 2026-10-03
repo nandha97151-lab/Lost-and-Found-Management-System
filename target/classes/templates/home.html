@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found Management System - Campus Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navbar Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand">
+                <i class="fa-solid fa-box-open"></i> Lost & Found System
+            </a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}" class="active">Home</a></li>
+                <li><a th:href="@{/search?type=LOST}">Lost Items</a></li>
+                <li><a th:href="@{/search?type=FOUND}">Found Items</a></li>
+                <li sec:authorize="isAuthenticated()"><a th:href="@{/report-lost}">Report Lost</a></li>
+                <li sec:authorize="isAuthenticated()"><a th:href="@{/report-found}">Report Found</a></li>
+                <li sec:authorize="isAuthenticated()"><a th:href="@{/dashboard}">Dashboard</a></li>
+                <li sec:authorize="hasAuthority('ADMIN')"><a th:href="@{/admin/dashboard}" style="color: #ef4444; font-weight:700;"><i class="fa-solid fa-user-shield"></i> Admin</a></li>
+                
+                <li sec:authorize="isAnonymous()">
+                    <a th:href="@{/login}" class="btn btn-outline btn-sm">Login</a>
+                </li>
+                <li sec:authorize="isAnonymous()">
+                    <a th:href="@{/register}" class="btn btn-primary btn-sm">Register</a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">Campus Lost & Found Portal</h1>
+            <p class="hero-subtitle">
+                A modern platform for students and staff to quickly report lost belongings, register found items, and claim recovered property efficiently.
+            </p>
+            <div class="hero-actions">
+                <a th:href="@{/report-lost}" class="btn btn-primary" style="background:#ffffff; color:#4f46e5; font-weight:700;">
+                    <i class="fa-solid fa-circle-plus"></i> Report Lost Item
+                </a>
+                <a th:href="@{/report-found}" class="btn btn-primary" style="background:#0ea5e9; color:#ffffff; font-weight:700;">
+                    <i class="fa-solid fa-hand-holding-hand"></i> Report Found Item
+                </a>
+                <a th:href="@{/search}" class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color:#fff; border: 1px solid rgba(255,255,255,0.4);">
+                    <i class="fa-solid fa-magnifying-glass"></i> Search Items
+                </a>
+            </div>
+        </section>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon lost"><i class="fa-solid fa-circle-question"></i></div>
+                <div>
+                    <div class="stat-number" th:text="${totalLost}">0</div>
+                    <div class="stat-label">Total Lost Items</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon found"><i class="fa-solid fa-box"></i></div>
+                <div>
+                    <div class="stat-number" th:text="${totalFound}">0</div>
+                    <div class="stat-label">Total Found Items</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon returned"><i class="fa-solid fa-circle-check"></i></div>
+                <div>
+                    <div class="stat-number" th:text="${itemsReturned}">0</div>
+                    <div class="stat-label">Items Returned</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon claims"><i class="fa-solid fa-file-signature"></i></div>
+                <div>
+                    <div class="stat-number" th:text="${pendingClaims}">0</div>
+                    <div class="stat-label">Pending Claims</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Items Grid -->
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: var(--dark);">
+            <i class="fa-solid fa-clock-rotate-left"></i> Recently Reported Items
+        </h2>
+
+        <div class="items-grid">
+            <!-- Lost Items -->
+            <div th:each="item : ${recentLostItems}" class="item-card">
+                <img th:src="${item.image != null ? item.image : 'https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=500&auto=format&fit=crop&q=60'}" 
+                     class="item-image" alt="Item Image">
+                <div class="item-body">
+                    <span class="item-badge badge-lost">LOST</span>
+                    <h3 class="item-title" th:text="${item.itemName}">Item Name</h3>
+                    <div class="item-meta">
+                        <span><i class="fa-solid fa-folder"></i> <span th:text="${item.category}">Category</span></span>
+                        <span><i class="fa-solid fa-location-dot"></i> <span th:text="${item.location}">Location</span></span>
+                        <span><i class="fa-solid fa-calendar"></i> <span th:text="${item.dateLost}">Date</span></span>
+                    </div>
+                    <a th:href="@{'/item/lost/' + ${item.id}}" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: auto;">
+                        View Details
+                    </a>
+                </div>
+            </div>
+
+            <!-- Found Items -->
+            <div th:each="item : ${recentFoundItems}" class="item-card">
+                <img th:src="${item.image != null ? item.image : 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=500&auto=format&fit=crop&q=60'}" 
+                     class="item-image" alt="Item Image">
+                <div class="item-body">
+                    <span class="item-badge badge-found">FOUND</span>
+                    <h3 class="item-title" th:text="${item.itemName}">Item Name</h3>
+                    <div class="item-meta">
+                        <span><i class="fa-solid fa-folder"></i> <span th:text="${item.category}">Category</span></span>
+                        <span><i class="fa-solid fa-location-dot"></i> <span th:text="${item.location}">Location</span></span>
+                        <span><i class="fa-solid fa-calendar"></i> <span th:text="${item.dateFound}">Date</span></span>
+                    </div>
+                    <a th:href="@{'/item/found/' + ${item.id}}" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-top: auto;">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="main-container" style="margin: 0 auto; padding: 0 1.5rem;">
+            <p>&copy; 2026 Campus Lost & Found Management System | Spring Boot & MySQL Application</p>
+        </div>
+    </footer>
+
+</body>
+</html>

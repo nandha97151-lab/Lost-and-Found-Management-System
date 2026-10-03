@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Lost & Found Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/search}">Search Items</a></li>
+                <li><a th:href="@{/report-lost}">Report Lost</a></li>
+                <li><a th:href="@{/report-found}">Report Found</a></li>
+                <li><a th:href="@{/dashboard}" class="active">Dashboard</a></li>
+                <li><a th:href="@{/profile}">Profile</a></li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <div class="dashboard-container">
+            
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div style="text-align: center; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border);">
+                    <div style="width: 70px; height: 70px; border-radius: 50%; background: #eef2ff; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 0.75rem;">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 700;" th:text="${currentUser.name}">User Name</h3>
+                    <p style="font-size: 0.85rem; color: var(--slate);" th:text="${currentUser.email}">user@campus.edu</p>
+                    <span class="item-badge badge-found" style="position:static; display:inline-block; margin-top:0.4rem;" th:text="${currentUser.role}">ROLE_USER</span>
+                </div>
+
+                <ul class="sidebar-menu">
+                    <li><a href="#my-lost" class="sidebar-link active"><i class="fa-solid fa-circle-question"></i> My Lost Reports</a></li>
+                    <li><a href="#my-found" class="sidebar-link"><i class="fa-solid fa-box"></i> My Found Reports</a></li>
+                    <li><a href="#my-claims" class="sidebar-link"><i class="fa-solid fa-file-signature"></i> My Claims</a></li>
+                    <li><a th:href="@{/profile}" class="sidebar-link"><i class="fa-solid fa-user-gear"></i> Account Settings</a></li>
+                </ul>
+            </aside>
+
+            <!-- Content Panel -->
+            <div>
+                
+                <!-- Section 1: My Lost Reports -->
+                <section id="my-lost" style="margin-bottom: 2.5rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                        <h2 style="font-size: 1.3rem; font-weight: 700;"><i class="fa-solid fa-circle-question" style="color:#ef4444;"></i> My Lost Item Reports</h2>
+                        <a th:href="@{/report-lost}" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> New Report</a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Item</th>
+                                    <th>Category</th>
+                                    <th>Location</th>
+                                    <th>Date Lost</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${myLostItems}">
+                                    <td th:text="${item.itemCode}" style="font-weight:600;">LOST-101</td>
+                                    <td th:text="${item.itemName}">MacBook</td>
+                                    <td th:text="${item.category}">Electronics</td>
+                                    <td th:text="${item.location}">Library</td>
+                                    <td th:text="${item.dateLost}">2026-09-28</td>
+                                    <td>
+                                        <span class="item-badge" 
+                                              th:classappend="${item.status == 'OPEN' ? 'badge-open' : 'badge-returned'}" 
+                                              style="position:static;" th:text="${item.status}">OPEN</span>
+                                    </td>
+                                    <td>
+                                        <form th:action="@{'/lost-item/delete/' + ${item.id}}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this report?')">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(myLostItems)}">
+                                    <td colspan="7" style="text-align:center; color:var(--slate);">No lost items reported yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Section 2: My Found Reports -->
+                <section id="my-found" style="margin-bottom: 2.5rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                        <h2 style="font-size: 1.3rem; font-weight: 700;"><i class="fa-solid fa-box" style="color:#0ea5e9;"></i> My Found Item Reports</h2>
+                        <a th:href="@{/report-found}" class="btn btn-primary btn-sm" style="background:#0ea5e9;"><i class="fa-solid fa-plus"></i> New Report</a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Item</th>
+                                    <th>Category</th>
+                                    <th>Location</th>
+                                    <th>Date Found</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${myFoundItems}">
+                                    <td th:text="${item.itemCode}" style="font-weight:600;">FND-201</td>
+                                    <td th:text="${item.itemName}">Headphones</td>
+                                    <td th:text="${item.category}">Electronics</td>
+                                    <td th:text="${item.location}">Auditorium</td>
+                                    <td th:text="${item.dateFound}">2026-09-29</td>
+                                    <td>
+                                        <span class="item-badge" 
+                                              th:classappend="${item.status == 'OPEN' ? 'badge-open' : (item.status == 'CLAIM_PENDING' ? 'badge-claimed' : 'badge-returned')}" 
+                                              style="position:static;" th:text="${item.status}">OPEN</span>
+                                    </td>
+                                    <td>
+                                        <form th:action="@{'/found-item/delete/' + ${item.id}}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this report?')">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(myFoundItems)}">
+                                    <td colspan="7" style="text-align:center; color:var(--slate);">No found items registered yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Section 3: My Claims -->
+                <section id="my-claims">
+                    <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-file-signature" style="color:#f59e0b;"></i> My Submitted Claims
+                    </h2>
+
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Claim ID</th>
+                                    <th>Target Found Item</th>
+                                    <th>Claimant Name</th>
+                                    <th>Proof Description</th>
+                                    <th>Date Submitted</th>
+                                    <th>Claim Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="claim : ${myClaims}">
+                                    <td th:text="${claim.claimCode}" style="font-weight:600;">CLM-301</td>
+                                    <td th:text="${claim.foundItem.itemName}">Sony Headphones</td>
+                                    <td th:text="${claim.claimantName}">Alex</td>
+                                    <td th:text="${#strings.abbreviate(claim.description, 40)}">Proof info...</td>
+                                    <td th:text="${#temporals.format(claim.createdAt, 'yyyy-MM-dd HH:mm')}">2026-09-30</td>
+                                    <td>
+                                        <span class="item-badge" 
+                                              th:classappend="${claim.status == 'PENDING' ? 'badge-claimed' : (claim.status == 'APPROVED' ? 'badge-open' : 'badge-lost')}" 
+                                              style="position:static;" th:text="${claim.status}">PENDING</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(myClaims)}">
+                                    <td colspan="6" style="text-align:center; color:var(--slate);">You haven't submitted any ownership claims.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

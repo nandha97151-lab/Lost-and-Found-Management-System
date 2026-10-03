@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Lost & Found Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/search}">Search Items</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="form-card" style="text-align: center; max-width: 500px;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 3.5rem; color: var(--danger); margin-bottom: 1rem;"></i>
+            <h2 style="font-size: 1.6rem; font-weight: 700; margin-bottom: 0.5rem;">An Error Occurred</h2>
+            <p style="color: var(--slate); margin-bottom: 1.5rem;" th:text="${errorMessage}">Something went wrong.</p>
+            <a th:href="@{/}" class="btn btn-primary"><i class="fa-solid fa-house"></i> Return to Homepage</a>
+        </div>
+    </main>
+
+</body>
+</html>

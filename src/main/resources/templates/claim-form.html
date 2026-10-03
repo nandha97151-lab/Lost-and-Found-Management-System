@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Claim - Lost & Found Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/search}">Search Items</a></li>
+                <li><a th:href="@{/dashboard}">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="form-card" style="max-width: 650px;">
+            <div class="form-header">
+                <i class="fa-solid fa-file-signature" style="font-size: 2.5rem; color: var(--success); margin-bottom: 0.5rem;"></i>
+                <h2 style="font-size: 1.6rem; font-weight: 700;">Submit Item Ownership Claim</h2>
+                <p style="color: var(--slate); font-size: 0.9rem;">
+                    Claiming Found Item: <strong th:text="${foundItem.itemName}">Item Name</strong> (Code: <span th:text="${foundItem.itemCode}">FND-100</span>)
+                </p>
+            </div>
+
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+            <form th:action="@{/claim/submit}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="foundItemId" th:value="${foundItem.id}">
+
+                <div class="form-group">
+                    <label class="form-label">Claimant Full Name *</label>
+                    <input type="text" name="claimantName" th:value="${currentUser.name}" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Detailed Proof of Ownership *</label>
+                    <textarea name="description" class="form-control" rows="4" 
+                              placeholder="Describe unique details, contents inside, purchase receipt info, background wallpaper, precise marks, or serial number that proves this belongs to you..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Additional Identifying Info (Optional)</label>
+                    <textarea name="additionalInfo" class="form-control" rows="2" placeholder="Any secondary verification details..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Upload Proof Document / Image (Receipt, ID, Box)</label>
+                    <input type="file" name="proofImageFile" class="form-control" accept="image/*,.pdf">
+                    <small style="color: var(--slate); font-size: 0.8rem;">Upload a photo of purchase invoice, original box, or matching document if available.</small>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center; margin-top: 1rem; font-size: 1.05rem;">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Verification Claim
+                </button>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Lost & Found Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System <span style="font-size:0.75rem; background:#fee2e2; color:#ef4444; padding:2px 8px; border-radius:12px; margin-left:6px;">ADMIN PORTAL</span></a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/dashboard}">User View</a></li>
+                <li><a th:href="@{/admin/dashboard}" class="active" style="color:#ef4444;">Admin Dashboard</a></li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem; font-weight: 800; color: var(--dark);"><i class="fa-solid fa-user-shield"></i> System Administration</h1>
+            <p style="color: var(--slate);">Manage campus users, verify ownership claims, and update report statuses.</p>
+        </div>
+
+        <!-- Admin Stats Row -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon lost"><i class="fa-solid fa-users"></i></div>
+                <div>
+                    <div class="stat-number" th:text="${totalUsers}">0</div>
+                    <div class="stat-label">Registered Users</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon lost"><i class="fa-solid fa-circle-question"></i></div>
+                <div>
+                    <div class="stat-number" th:text="${totalLostReports}">0</div>
+                    <div class="stat-label">Lost Reports</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon found"><i class="fa-solid fa-box"></i></div>
+                <div>
+                    <div class="stat-number" th:text="${totalFoundReports}">0</div>
+                    <div class="stat-label">Found Reports</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon claims"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div>
+                    <div class="stat-number" th:text="${pendingClaimsCount}">0</div>
+                    <div class="stat-label">Pending Claims</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Claims Approvals Workflow -->
+        <section id="claims-section" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: var(--dark);">
+                <i class="fa-solid fa-clipboard-check" style="color:var(--primary);"></i> Ownership Claims Approval Workflow
+            </h2>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Claim Code</th>
+                            <th>Found Item</th>
+                            <th>Claimant</th>
+                            <th>Proof Details</th>
+                            <th>Proof Image</th>
+                            <th>Submitted Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="claim : ${claimsList}">
+                            <td th:text="${claim.claimCode}" style="font-weight:700;">CLM-1001</td>
+                            <td>
+                                <strong th:text="${claim.foundItem.itemName}">Item Name</strong><br>
+                                <small style="color:var(--slate);" th:text="${claim.foundItem.itemCode}">FND-100</small>
+                            </td>
+                            <td>
+                                <span th:text="${claim.claimantName}">User</span><br>
+                                <small style="color:var(--slate);" th:text="${claim.user.email}">email</small>
+                            </td>
+                            <td th:text="${claim.description}">Description proof...</td>
+                            <td>
+                                <a th:if="${claim.proofImage != null}" th:href="${claim.proofImage}" target="_blank" style="color:var(--primary); font-weight:600;">View File</a>
+                                <span th:if="${claim.proofImage == null}" style="color:var(--slate);">None</span>
+                            </td>
+                            <td th:text="${#temporals.format(claim.createdAt, 'yyyy-MM-dd HH:mm')}">2026-09-30</td>
+                            <td>
+                                <span class="item-badge" 
+                                      th:classappend="${claim.status == 'PENDING' ? 'badge-claimed' : (claim.status == 'APPROVED' ? 'badge-open' : 'badge-lost')}" 
+                                      style="position:static;" th:text="${claim.status}">PENDING</span>
+                            </td>
+                            <td>
+                                <div th:if="${claim.status == 'PENDING'}" style="display:flex; gap:6px;">
+                                    <form th:action="@{'/admin/claim/approve/' + ${claim.id}}" method="post">
+                                        <button type="submit" class="btn btn-success btn-sm"><i class="fa-solid fa-check"></i> Approve</button>
+                                    </form>
+                                    <form th:action="@{'/admin/claim/reject/' + ${claim.id}}" method="post">
+                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-xmark"></i> Reject</button>
+                                    </form>
+                                </div>
+                                <span th:if="${claim.status != 'PENDING'}" style="font-size:0.85rem; color:var(--slate);">Completed</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(claimsList)}">
+                            <td colspan="8" style="text-align:center; color:var(--slate);">No claims submitted yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section: Manage All Lost Reports -->
+        <section id="lost-section" style="margin-bottom: 3rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: var(--dark);">
+                <i class="fa-solid fa-circle-question" style="color:#ef4444;"></i> All Lost Items
+            </h2>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Reported By</th>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Location</th>
+                            <th>Date Lost</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${lostItemsList}">
+                            <td th:text="${item.itemCode}" style="font-weight:700;">LOST-101</td>
+                            <td th:text="${item.user.name}">User</td>
+                            <td th:text="${item.itemName}">Item</td>
+                            <td th:text="${item.category}">Category</td>
+                            <td th:text="${item.location}">Location</td>
+                            <td th:text="${item.dateLost}">2026-09-28</td>
+                            <td>
+                                <span class="item-badge" th:classappend="${item.status == 'OPEN' ? 'badge-open' : 'badge-returned'}" style="position:static;" th:text="${item.status}">OPEN</span>
+                            </td>
+                            <td>
+                                <div style="display:flex; gap:6px;">
+                                    <form th:if="${item.status == 'OPEN'}" th:action="@{'/admin/lost/mark-returned/' + ${item.id}}" method="post">
+                                        <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-box-archive"></i> Mark Returned</button>
+                                    </form>
+                                    <form th:action="@{'/lost-item/delete/' + ${item.id}}" method="post">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remove report?')"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section: Registered Users List -->
+        <section id="users-section">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; color: var(--dark);">
+                <i class="fa-solid fa-users-gear" style="color:var(--slate);"></i> Registered Users Management
+            </h2>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Full Name</th>
+                            <th>Email Address</th>
+                            <th>Phone Number</th>
+                            <th>System Role</th>
+                            <th>Registered Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${usersList}">
+                            <td th:text="${user.id}">1</td>
+                            <td th:text="${user.name}" style="font-weight:600;">Admin</td>
+                            <td th:text="${user.email}">email</td>
+                            <td th:text="${user.phone}">12345</td>
+                            <td><span class="item-badge badge-found" style="position:static;" th:text="${user.role}">ROLE_USER</span></td>
+                            <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}">2026-09-28</td>
+                            <td>
+                                <form th:if="${user.role != 'ADMIN'}" th:action="@{'/admin/user/delete/' + ${user.id}}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete user account?')"><i class="fa-solid fa-user-xmark"></i> Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>

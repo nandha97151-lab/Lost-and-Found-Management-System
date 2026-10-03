@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Lost Item - Lost & Found Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a th:href="@{/}" class="brand"><i class="fa-solid fa-box-open"></i> Lost & Found System</a>
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Home</a></li>
+                <li><a th:href="@{/search}">Search Items</a></li>
+                <li><a th:href="@{/dashboard}">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <div class="form-card">
+            <div class="form-header">
+                <i class="fa-solid fa-file-circle-question" style="font-size: 2.5rem; color: #ef4444; margin-bottom: 0.5rem;"></i>
+                <h2 style="font-size: 1.6rem; font-weight: 700;">Report Lost Item</h2>
+                <p style="color: var(--slate); font-size: 0.9rem;">Fill out the details below to broadcast your missing item</p>
+            </div>
+
+            <form th:action="@{/report-lost}" th:object="${lostItem}" method="post" enctype="multipart/form-data">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Item Name *</label>
+                        <input type="text" th:field="*{itemName}" class="form-control" placeholder="e.g. MacBook Pro 14 inch" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select th:field="*{category}" class="form-control" required>
+                            <option value="">Select Category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Personal Items">Personal Items (Wallet, Bag, Watch)</option>
+                            <option value="Books & Notes">Books & Notes</option>
+                            <option value="Keys">Keys</option>
+                            <option value="ID Cards & Documents">ID Cards & Documents</option>
+                            <option value="Clothing & Accessories">Clothing & Accessories</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Item Description *</label>
+                    <textarea th:field="*{description}" class="form-control" rows="3" placeholder="Provide detailed description of the item..." required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Location Lost *</label>
+                        <input type="text" th:field="*{location}" class="form-control" placeholder="e.g. Central Library 2nd Floor" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Item Color</label>
+                        <input type="text" th:field="*{color}" class="form-control" placeholder="e.g. Space Gray / Black">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Date Lost *</label>
+                        <input type="date" th:field="*{dateLost}" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Approximate Time Lost</label>
+                        <input type="text" th:field="*{timeLost}" class="form-control" placeholder="e.g. 02:30 PM">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Identifying Features / Marks</label>
+                    <textarea th:field="*{identifyingFeatures}" class="form-control" rows="2" placeholder="e.g. Scratch on top left cover, CS stickers"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contact Information *</label>
+                    <input type="text" th:field="*{contactInfo}" class="form-control" placeholder="Email or Phone to reach you" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Item Image Upload</label>
+                    <input type="file" name="imageFile" class="form-control" accept="image/*">
+                    <small style="color: var(--slate); font-size: 0.8rem;">Upload a photo of the item or similar reference photo</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem; background: #ef4444;">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Lost Report
+                </button>
+            </form>
+        </div>
+    </main>
+
+</body>
+</html>
